@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="디지털 리터러시 주제와 게임 형식을 조합해 Canva AI용 게임 프롬프트를 만드는 해커톤 도우미">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>바이브코딩 해커톤 개발 도움기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Nanum+Gothic+Coding:wght@400;700&display=swap">
+<style>
+/* Layout: one column workbench — sticky combo bar on top, numbered STEP cards below, like a game-builder kit */
+:root{
+  --bg:#f3f7f3; --surface:#ffffff; --surface-2:#f8fbf8;
+  --ink:#1c2a21; --muted:#5b6b61; --line:#d7e3da;
+  --accent:#2f9e63; --accent-soft:#e5f4ea; --accent-ink:#1b6a40; --on-accent:#ffffff;
+  --alert:#c4503a; --alert-soft:#fbeae5; --star:#d99a00; --good:#2f9e63; --bad:#c4503a;
+  --f-display:"Jua","Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"Nanum Gothic Coding","D2Coding",ui-monospace,Menlo,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1512; --surface:#16201a; --surface-2:#1b2720;
+  --ink:#e4eee7; --muted:#9aaca0; --line:#2b3a31;
+  --accent:#4cc485; --accent-soft:#1b3426; --accent-ink:#93e2b6; --on-accent:#0d1a12;
+  --alert:#ff8c72; --alert-soft:#3a201a; --star:#f2c14e; --good:#5fd394; --bad:#ff8c72;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1512; --surface:#16201a; --surface-2:#1b2720;
+  --ink:#e4eee7; --muted:#9aaca0; --line:#2b3a31;
+  --accent:#4cc485; --accent-soft:#1b3426; --accent-ink:#93e2b6; --on-accent:#0d1a12;
+  --alert:#ff8c72; --alert-soft:#3a201a; --star:#f2c14e; --good:#5fd394; --bad:#ff8c72;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:20px 64px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* header */
+.hero{display:flex;flex-direction:column;gap:8px;padding-block:8px 4px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;color:var(--accent-ink);letter-spacing:.04em}
+.hero h1{font-size:clamp(28px,6vw,42px);line-height:1.2}
+.hero p{margin:0;color:var(--muted);max-width:62ch}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.jump a{font-size:14px;color:var(--ink);text-decoration:none;border:1px solid var(--line);background:var(--surface);padding:6px 14px;border-radius:999px}
+.jump a:hover{border-color:var(--accent)}
+
+/* combo bar */
+.combo{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;box-shadow:0 6px 18px -14px rgba(0,0,0,.45)}
+.slot{flex:1 1 200px;min-width:0;border:2px dashed var(--line);border-radius:12px;padding:6px 12px;display:flex;flex-direction:column}
+.slot.on{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
+.slot small{font-size:12px;color:var(--muted)}
+.slot b{font-family:var(--f-display);font-weight:400;font-size:19px;overflow-wrap:anywhere}
+.plus{font-family:var(--f-display);font-size:26px;color:var(--accent)}
+.dice{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:10px 14px;font-size:15px}
+.dice:hover{border-color:var(--accent)}
+
+/* step card */
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px}
+.step-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px}
+.step-no{font-family:var(--f-mono);font-weight:700;font-size:13px;color:var(--on-accent);background:var(--accent);padding:3px 10px;border-radius:999px;letter-spacing:.05em}
+.step-head h2{font-size:24px}
+.step-head p{margin:0;color:var(--muted);font-size:15px;flex-basis:100%}
+
+/* tabs + chips (matches the reference: pill tabs, light-green selected chips with a small mono subline) */
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-size:15px;display:inline-flex;gap:6px;align-items:center}
+.tab .n{color:var(--muted);font-family:var(--f-mono);font-size:13px}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tab[aria-selected="true"] .n{color:var(--on-accent);opacity:.85}
+.tab .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.tab[aria-selected="true"] .dot{background:var(--on-accent)}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.chip{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-height:64px;transition:border-color .15s,background .15s}
+.chip:hover{border-color:var(--accent)}
+.chip .k{font-size:16px;font-weight:700}
+.chip .s{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.chip .stars{color:var(--star);letter-spacing:1px}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.chip[aria-pressed="true"] .k{color:var(--accent-ink)}
+
+/* detail line under chips */
+.detail{border-top:1px dashed var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.detail .lead{margin:0;color:var(--accent-ink);font-size:15px}
+.detail .lead b{font-family:var(--f-display);font-weight:400;font-size:18px}
+.gb{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.gb > div{min-width:0;background:var(--surface-2);border-radius:12px;padding:12px 14px}
+.gb h3{font-size:16px;margin-bottom:4px}
+.gb .g h3{color:var(--good)} .gb .b h3{color:var(--bad)}
+.gb ul{margin:0;padding-left:20px;font-size:15px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
+.empty{color:var(--muted);font-size:15px;margin:0}
+
+/* settings */
+.field{display:flex;flex-direction:column;gap:8px}
+.field label,.field .lab{font-weight:700;font-size:15px}
+.field .hint{font-size:13px;color:var(--muted);font-weight:400}
+input[type=text]{font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input[type=text]:focus{border-color:var(--accent);outline:none}
+.mini{display:flex;flex-wrap:wrap;gap:8px}
+.mini button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:14px}
+.mini button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.mode{text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.mode b{font-family:var(--f-display);font-weight:400;font-size:18px}
+.mode span{font-size:14px;color:var(--muted)}
+.mode[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+
+/* generate + output */
+.go{border:none;background:var(--accent);color:var(--on-accent);font-family:var(--f-display);font-size:22px;padding:14px 20px;border-radius:14px;width:100%}
+.go:hover{filter:brightness(1.06)}
+.go[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
+.go-note{margin:0;text-align:center;color:var(--muted);font-size:14px}
+.out{display:flex;flex-direction:column;gap:10px}
+textarea{font-family:var(--f-mono);font-size:14.5px;line-height:1.7;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px;width:100%;min-height:480px;resize:vertical}
+textarea:focus{border-color:var(--accent);outline:none}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:10px;padding:10px 18px;font-size:15px;font-weight:700}
+.btn.ghost{background:var(--surface);color:var(--accent-ink)}
+.btn.alert{background:var(--alert);border-color:var(--alert);color:var(--surface)}
+.out .note{font-size:14px;color:var(--muted);margin:0}
+
+/* tips */
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin:0;padding:0;list-style:none;counter-reset:t}
+.tips li{counter-increment:t;background:var(--surface-2);border-radius:12px;padding:12px 14px 12px 48px;position:relative;font-size:15px;min-width:0}
+.tips li::before{content:counter(t);position:absolute;left:14px;top:12px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);font-family:var(--f-mono);font-weight:700;font-size:13px;display:grid;place-items:center}
+.tips b{display:block;font-size:15.5px}
+.tips code{font-family:var(--f-mono);font-size:13.5px;background:var(--accent-soft);color:var(--accent-ink);padding:1px 6px;border-radius:6px}
+
+/* fix */
+.broken{border:2px solid var(--alert);background:var(--alert-soft);color:var(--alert);font-family:var(--f-display);font-size:21px;padding:14px;border-radius:14px;width:100%}
+.fixbox{border:1px solid var(--alert);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--surface-2)}
+.fixbox p.q{margin:0;font-family:var(--f-mono);font-size:15px;line-height:1.75}
+.fixlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px}
+.fx{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0;background:var(--surface-2)}
+.fx b{font-size:15.5px}
+.fx p{margin:0;font-family:var(--f-mono);font-size:13.5px;color:var(--muted);line-height:1.65}
+.fx .btn{align-self:flex-start;padding:6px 14px;font-size:14px}
+
+/* checklist (reference image 2) */
+.check{border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.check-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.check-top b{font-size:16px}
+.check-top span{font-family:var(--f-mono);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.items label{display:flex;gap:12px;align-items:flex-start;padding:7px 4px;border-radius:8px;cursor:pointer;font-size:15.5px}
+.items label:hover{background:var(--surface-2)}
+.items input{appearance:none;flex:0 0 22px;width:22px;height:22px;border:2px solid var(--muted);border-radius:50%;margin:1px 0 0;display:grid;place-items:center;cursor:pointer}
+.items input:checked{background:var(--accent);border-color:var(--accent)}
+.items input:checked::after{content:"";width:6px;height:11px;border:solid var(--on-accent);border-width:0 3px 3px 0;transform:translate(0,-1px) rotate(45deg)}
+.items input:checked + span{color:var(--muted);text-decoration:line-through}
+.reset{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px;font-size:14px;color:var(--muted)}
+.done-msg{margin:0;text-align:center;color:var(--accent-ink);font-family:var(--f-display);font-size:19px}
+
+/* toast */
+.foot{text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:13px;padding-top:6px;letter-spacing:.03em}
+.foot b{font-family:var(--f-display);font-weight:400;font-size:17px;color:var(--accent-ink);letter-spacing:0}
+.fun{margin:0;padding-left:20px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:15px;transition:.25s;pointer-events:none;z-index:20;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:520px){
+  .step{padding:16px}
+  .plus{display:none}
+  .chips{grid-template-columns:1fr 1fr}
+  .chip{padding:9px 11px}
+  .chip .k{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">AI 연구학교 · 4~6학년 해커톤 · Canva AI로 만드는 디지털 리터러시 게임</span>
+    <h1>바이브코딩 해커톤 개발 도움기</h1>
+    <p>디지털 리터러시 주제 하나와 게임 형식 하나를 골라 나만의 조합을 만들어요. 버튼을 누르면 Canva AI에 넣을 프롬프트가 완성돼요.</p>
+    <nav class="jump" aria-label="바로가기">
+      <a href="#step1">조합 만들기</a><a href="#prompt">프롬프트</a><a href="#tips">팁</a><a href="#fix">고치기</a><a href="#check">점검표</a>
+    </nav>
+  </header>
+
+  <div class="combo" aria-live="polite">
+    <div class="slot" id="slotK"><small>디지털 리터러시</small><b id="slotKv">아직 안 골랐어요</b></div>
+    <span class="plus" aria-hidden="true">+</span>
+    <div class="slot" id="slotG"><small>게임 형식</small><b id="slotGv">아직 안 골랐어요</b></div>
+    <button class="dice" id="dice" type="button">무작위로 뽑기</button>
+  </div>
+
+  <section class="step" id="step1">
+    <div class="step-head"><span class="step-no">STEP 01</span><h2>무엇을 배우는 게임인가요?</h2>
+      <p>디지털 리터러시 주제 20개 중 하나를 골라요. 고르면 아래에 올바른 행동과 잘못된 행동이 나와요.</p></div>
+    <div class="tabs" role="tablist" id="kTabs"></div>
+    <div class="chips" id="kChips"></div>
+    <div class="detail" id="kDetail"></div>
+  </section>
+
+  <section class="step" id="step2">
+    <div class="step-head"><span class="step-no">STEP 02</span><h2>어떤 게임으로 만들까요?</h2>
+      <p>게임 형식 20개 중 하나를 골라요. 별(★)이 적을수록 만들기 쉬워요. 처음이라면 ★ 하나짜리부터!</p></div>
+    <div class="tabs" role="tablist" id="gTabs"></div>
+    <div class="chips" id="gChips"></div>
+    <div class="detail" id="gDetail"></div>
+  </section>
+
+  <section class="step" id="step3">
+    <div class="step-head"><span class="step-no">STEP 03</span><h2>나만의 게임 꾸미기</h2>
+      <p>제목과 주인공, 분위기를 정해요. 마음에 드는 게 없으면 직접 써도 돼요.</p></div>
+    <div class="field">
+      <label for="title">게임 제목 <span class="hint">· 조합을 고르면 자동으로 채워져요. 바꿔 써도 돼요.</span></label>
+      <input type="text" id="title" placeholder="예: 가짜뉴스 탐정 OX 퀴즈" maxlength="40">
+    </div>
+    <div class="field">
+      <span class="lab">주인공</span>
+      <div class="mini" id="chars"></div>
+      <input type="text" id="charInput" aria-label="주인공 직접 쓰기" maxlength="40">
+    </div>
+    <div class="field">
+      <span class="lab">디자인 분위기</span>
+      <div class="mini" id="moods"></div>
+    </div>
+    <div class="field">
+      <span class="lab">경쟁·재미 요소 더하기 <span class="hint">· 여러 개 고를 수 있어요. 3~5개가 알맞아요. 너무 많으면 게임이 복잡해져요.</span></span>
+      <div class="chips" id="extras"></div>
+    </div>
+    <div class="field">
+      <span class="lab">프롬프트 종류</span>
+      <div class="modes">
+        <button type="button" class="mode" data-mode="full" aria-pressed="true"><b>처음이에요</b><span>규칙, 성공 조건, 학습 내용까지 모두 채워진 자세한 프롬프트</span></button>
+        <button type="button" class="mode" data-mode="idea" aria-pressed="false"><b>자신 있어요</b><span>주제와 게임만 정해 주고 나만의 아이디어를 직접 쓰는 프롬프트</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" id="prompt">
+    <div class="step-head"><span class="step-no">STEP 04</span><h2>예시 프롬프트 받기</h2>
+      <p>프롬프트는 상자 안에서 바로 고칠 수 있어요. 고친 다음 복사해서 Canva AI에 붙여넣어요.</p></div>
+    <button class="go" id="go" type="button" aria-disabled="true">예시 프롬프트 작성하기</button>
+    <p class="go-note" id="goNote">STEP 01과 STEP 02에서 하나씩 골라 주세요.</p>
+    <div class="out" id="out" hidden>
+      <textarea id="promptBox" aria-label="완성된 프롬프트" spellcheck="false"></textarea>
+      <div class="row">
+        <button class="btn" id="copyPrompt" type="button">프롬프트 복사하기</button>
+        <button class="btn ghost" id="regen" type="button">처음 상태로 다시 만들기</button>
+      </div>
+      <p class="note">대괄호 [ ] 안의 내용은 내 생각으로 바꿔 쓰는 자리예요. 학습 내용을 내가 겪은 일로 바꾸면 더 멋진 게임이 돼요.</p>
+    </div>
+  </section>
+
+  <section class="step" id="tips">
+    <div class="step-head"><span class="step-no">TIP</span><h2>어려울 때 보는 팁</h2></div>
+    <ol class="tips">
+      <li><b>붙여넣을 곳</b>Canva에서 Canva AI를 열고 코드 만들기(Canva Code)를 고른 뒤 프롬프트를 붙여넣어요.</li>
+      <li><b>첫 결과는 연습판</b>AI가 처음 만든 게임은 완성본이 아니에요. 직접 해 보고 고칠 점을 찾아요.</li>
+      <li><b>한 번에 1~2가지만</b>여러 개를 한꺼번에 고치면 잘 되던 부분이 망가질 수 있어요.</li>
+      <li><b>무엇을, 어떻게</b><code>점수 글씨를 더 크게 해줘</code>처럼 바꿀 곳과 바꿀 모습을 함께 말해요.</li>
+      <li><b>마법의 한 문장</b>고칠 때 끝에 <code>다른 기능은 그대로 유지해줘</code>를 붙이면 안전해요.</li>
+      <li><b>내용 확인은 내가</b>AI가 쓴 디지털 리터러시 내용이 맞는지 직접 읽고 확인해요. AI도 틀릴 수 있어요.</li>
+      <li><b>개인정보는 넣지 않기</b>내 진짜 이름, 학교 이름, 얼굴 사진은 게임에 넣지 않아요.</li>
+      <li><b>횟수 아끼기</b>Canva AI는 하루에 쓸 수 있는 횟수가 정해져 있어요. 고칠 점을 메모해 두었다가 부탁해요.</li>
+    </ol>
+  </section>
+
+  <section class="step" id="fix">
+    <div class="step-head"><span class="step-no">HELP</span><h2>게임이 이상할 때</h2>
+      <p>게임이 아예 안 움직이면 빨간 버튼을, 더 좋게 고치고 싶으면 아래 문장을 복사해서 Canva AI에 보내요.</p></div>
+    <button class="broken" id="brokenBtn" type="button" aria-expanded="false" aria-controls="fixBox">게임이 실행되지 않아요</button>
+    <div class="fixbox" id="fixBox" hidden>
+      <p class="q" id="fixText">게임이 정상적으로 실행되지 않아. 현재 게임의 오류를 찾아 수정해줘. 시작 버튼, 게임 진행, 종료 화면이 모두 작동하는지 확인해줘. 기존 학습 내용과 게임 목적은 유지해줘.</p>
+      <div class="row"><button class="btn alert" id="copyFix" type="button">이 문장 복사하기</button></div>
+    </div>
+    <div class="fixlist" id="fixList"></div>
+  </section>
+
+  <section class="step" id="check">
+    <div class="step-head"><span class="step-no">CHECK</span><h2>학생용 게임 최종 점검표</h2>
+      <p>제출하기 전에 하나씩 확인하고 눌러요.</p></div>
+    <div class="check">
+      <div class="check-top"><b>나의 게임 완성도 확인</b><span id="cnt">0 / 8개</span></div>
+      <div class="bar" role="progressbar" aria-label="점검 진행" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" id="bar"><i id="barFill"></i></div>
+      <ul class="items" id="items"></ul>
+      <p class="done-msg" id="doneMsg" hidden>8개 모두 통과! 친구에게 내 게임을 소개해 보세요.</p>
+      <button class="reset" id="resetCheck" type="button">점검표 초기화</button>
+    </div>
+  </section>
+  <footer class="foot">Made by <b>이포쌤</b></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const K_GROUPS=["개인정보·보안","정보 판별","소통·존중","건강한 사용"];
+const KW=[
+ {g:0,n:"개인정보 보호",s:"이름, 주소, 전화번호 지키기",good:["이름·주소·전화번호를 모르는 사람에게 알려주지 않기","사진을 올리기 전에 이름표나 학교 이름이 보이는지 확인하기","개인정보를 묻는 낯선 사람이 있으면 어른께 알리기"],bad:["이벤트에 당첨되려고 집 주소 적기","교복 입은 사진을 전체 공개로 올리기","친구 전화번호를 단톡방에 올리기"]},
+ {g:0,n:"안전한 비밀번호",s:"나만 아는 튼튼한 비밀번호",good:["문자·숫자·기호를 섞어 길게 만들기","친한 친구에게도 비밀번호 알려주지 않기","공용 컴퓨터를 쓴 뒤 꼭 로그아웃하기"],bad:["1234나 생일로 비밀번호 만들기","모든 사이트에 같은 비밀번호 쓰기","비밀번호를 포스트잇에 써서 붙여두기"]},
+ {g:0,n:"피싱·스미싱 구별",s:"수상한 문자와 링크 조심",good:["모르는 번호에서 온 문자 속 링크 누르지 않기","'당첨', '택배' 문자는 어른께 먼저 확인하기","의심되면 공식 앱이나 사이트에서 직접 확인하기"],bad:["'택배 확인' 링크를 바로 누르기","무료 아이템을 준다는 말에 계정 알려주기","급하다는 메시지에 개인정보 보내기"]},
+ {g:0,n:"앱 설치와 권한",s:"앱이 내 정보를 가져가지 않게",good:["공식 앱 마켓에서만 앱 설치하기","필요 없는 권한(위치, 연락처)은 허용하지 않기","새 앱은 부모님과 함께 설치하기"],bad:["출처를 모르는 파일 설치하기","권한 요청마다 모두 '허용' 누르기","광고 창의 '다운로드' 버튼 누르기"]},
+ {g:0,n:"온라인 결제 안전",s:"몰래 결제, 아이템 거래 조심",good:["결제는 꼭 부모님과 함께하기","너무 싼 물건은 사기인지 의심하기","결제 비밀번호는 아무에게도 알려주지 않기"],bad:["부모님 카드로 몰래 결제하기","먼저 돈을 보내 달라는 말에 송금하기","게임 아이템을 모르는 사람과 현금으로 거래하기"]},
+ {g:1,n:"가짜뉴스 구별",s:"출처와 날짜 확인하기",good:["누가 쓴 글인지 출처 확인하기","다른 기사와 비교해 보기","언제 쓴 글인지 날짜 확인하기"],bad:["제목만 보고 바로 공유하기","자극적인 사진을 그대로 믿기","출처 없는 소문을 퍼뜨리기"]},
+ {g:1,n:"광고와 정보 구별",s:"광고·협찬 표시 찾기",good:["'광고', '협찬', '유료 광고 포함' 표시 확인하기","여러 사람의 후기 비교하기","좋은 말만 있으면 한 번 더 의심하기"],bad:["좋아하는 유튜버가 추천하면 무조건 사기","광고를 뉴스처럼 믿기","'무료 체험'에 결제 정보 넣기"]},
+ {g:1,n:"똑똑한 검색",s:"믿을 만한 자료 고르기",good:["핵심 낱말로 짧게 검색하기","기관·백과사전처럼 믿을 만한 사이트 고르기","검색 결과를 2개 이상 비교하기"],bad:["첫 번째 결과만 보고 믿기","'광고' 표시가 있는 결과를 정답으로 생각하기","출처를 모르는 글을 그대로 베끼기"]},
+ {g:1,n:"AI 답변 확인하기",s:"AI 말도 틀릴 수 있어요",good:["AI의 답을 책이나 다른 자료와 비교하기","이상한 답은 다시 물어보거나 선생님께 확인하기","과제에 AI를 썼으면 사용했다고 밝히기"],bad:["AI 답을 그대로 숙제로 내기","AI가 말한 틀린 정보를 사실처럼 퍼뜨리기","AI에 내 이름·주소 같은 개인정보 입력하기"]},
+ {g:1,n:"딥페이크·합성 구별",s:"진짜 같은 가짜 사진·영상",good:["손가락, 그림자, 입 모양처럼 어색한 부분 살펴보기","처음 올린 곳(출처)이 어디인지 확인하기","장난이라도 친구 얼굴로 합성하지 않기"],bad:["합성 영상을 진짜라고 믿고 공유하기","친구 얼굴로 합성 사진을 만들어 놀리기","유명인 가짜 영상을 퍼뜨리기"]},
+ {g:2,n:"사이버 폭력 예방",s:"온라인에서도 상처받아요",good:["친구 게시물에 응원하는 댓글 달기","괴롭힘을 보면 화면을 저장하고 어른께 알리기","놀림에 같이 웃거나 퍼뜨리지 않기"],bad:["친구 사진으로 놀리는 짤 만들기","익명이라고 욕설 쓰기","단톡방에서 한 친구를 계속 놀리기"]},
+ {g:2,n:"바른 댓글 쓰기",s:"고운 말로 의견 나누기",good:["고운 말과 존댓말 쓰기","생각이 다르면 이유를 들어 말하기","올리기 전에 한 번 더 읽어 보기"],bad:["같은 댓글을 여러 번 도배하기","모르는 사람의 외모 평가하기","화난 마음으로 바로 댓글 달기"]},
+ {g:2,n:"단톡방 예절",s:"함께 쓰는 대화방 약속",good:["늦은 밤에는 메시지 보내지 않기","친구를 초대하기 전에 먼저 물어보기","대화나 사진을 다른 곳에 올릴 때 허락받기"],bad:["의미 없는 이모티콘으로 도배하기","한 친구만 빼고 몰래 새 방 만들기","대화를 캡처해서 다른 방에 퍼뜨리기"]},
+ {g:2,n:"디지털 발자국",s:"인터넷에 남는 내 흔적",good:["올리기 전에 '나중에 봐도 괜찮을까?' 생각하기","게시물 공개 범위를 친구만으로 정하기","예전에 올린 글을 가끔 살펴보기"],bad:["지우면 완전히 사라진다고 생각하기","모든 게시물을 전체 공개로 올리기","화가 난 상태에서 글 올리기"]},
+ {g:2,n:"초상권 존중",s:"사진 찍고 올릴 땐 허락",good:["친구 사진을 찍기 전에 허락받기","올리기 전에 사진 속 사람에게 다시 묻기","친구가 지워 달라고 하면 바로 지우기"],bad:["친구 사진을 몰래 찍기","우스운 표정 사진을 허락 없이 올리기","친구 얼굴을 다른 사진에 합성하기"]},
+ {g:2,n:"저작권 지키기",s:"남의 작품은 허락·출처",good:["자료를 쓸 때 출처 밝히기","무료로 쓸 수 있는 저작물(공유마당 등) 찾아 쓰기","다른 사람 작품은 허락받고 쓰기"],bad:["인터넷 그림을 내가 그린 것처럼 올리기","영화·노래를 불법으로 내려받기","친구 글을 복사해서 내 숙제로 내기"]},
+ {g:3,n:"사용 시간 조절",s:"스스로 정하고 지키기",good:["하루 사용 시간을 정하고 알람 맞추기","잠자기 1시간 전에는 스마트폰 내려놓기","밥 먹을 때는 스마트폰 멀리 두기"],bad:["밤늦게 침대에서 영상 보기","'하나만 더' 하며 계속 보기","숙제하면서 알림을 계속 확인하기"]},
+ {g:3,n:"바른 자세와 눈 건강",s:"30cm 거리, 20분마다 쉬기",good:["화면과 눈 사이를 30cm 이상 떨어뜨리기","20분마다 먼 곳을 20초 바라보기","허리를 펴고 바르게 앉기"],bad:["누워서 스마트폰 보기","불 끈 어두운 방에서 밝은 화면 보기","고개를 숙인 채 오래 보기"]},
+ {g:3,n:"게임 과몰입 예방",s:"게임은 정한 만큼만",good:["게임 시간을 정하고 지키기","게임 결제는 부모님과 꼭 상의하기","게임 말고 다른 놀이도 즐기기"],bad:["부모님 몰래 아이템 결제하기","레벨업 하려고 밤새 게임하기","게임 때문에 숙제나 약속 잊기"]},
+ {g:3,n:"추천 알고리즘 이해",s:"추천 영상이 뜨는 이유",good:["추천 영상은 내가 본 영상 때문에 뜬다는 것 알기","보고 싶은 주제를 직접 검색하기","자동 재생 기능 끄기"],bad:["추천 영상만 계속 이어서 보기","추천에 뜨면 다 사실이라고 믿기","자극적인 영상만 계속 누르기"]}
+];
+const G_GROUPS=["퀴즈·선택","액션","분류·퍼즐","보드·도전"];
+const GAMES=[
+ {g:0,n:"OX 퀴즈",lv:1,c:"마우스 클릭",r:"디지털 생활 상황 문제가 하나씩 나오면 O 또는 X 버튼을 눌러 답한다. 맞히면 10점을 얻고, 틀리면 하트가 1개 줄어든다. 하트는 3개로 시작한다.",w:"10문제 중 7문제 이상 맞히면 성공"},
+ {g:0,n:"사지선다 퀴즈 쇼",lv:1,c:"마우스 클릭",r:"보기 4개 중 올바른 행동을 고른다. 맞히면 10점, 5초 안에 맞히면 보너스 5점을 더 얻는다. 틀리면 정답과 이유를 보여준다.",w:"10문제 중 8문제 이상 맞히면 성공"},
+ {g:0,n:"골든벨 서바이벌",lv:2,c:"마우스 클릭",r:"문제를 하나씩 풀며 단계가 올라간다. 틀리면 바로 탈락하지만 패자부활 기회가 1번 있다.",w:"마지막 10번째 문제까지 맞히고 골든벨을 울리면 성공"},
+ {g:0,n:"스피드 퀴즈",lv:2,c:"마우스 클릭",r:"60초 동안 나오는 문장을 보고 '올바른 행동' 또는 '잘못된 행동' 버튼을 빠르게 누른다. 맞히면 10점, 틀리면 5점을 잃는다.",w:"60초 안에 100점 이상 얻으면 성공"},
+ {g:0,n:"이야기 선택 모험",lv:2,c:"마우스 클릭",r:"주인공에게 디지털 상황이 생기면 선택지 2개 중 하나를 고른다. 올바른 행동을 고르면 별을 얻고 이야기가 이어진다. 잘못된 행동을 고르면 어떤 문제가 생기는지 보여주고 다시 고르게 한다.",w:"장면 5개를 지나 별 4개 이상을 모으면 해피엔딩으로 성공"},
+ {g:1,n:"비행기 피하기",lv:2,c:"방향키(← →)",r:"위에서 '잘못된 행동'이 적힌 운석이 떨어지면 피하고, '올바른 행동'이 적힌 별을 먹는다. 별을 먹으면 10점, 운석에 부딪히면 하트가 1개 줄어든다. 부딪힐 때마다 왜 위험한 행동인지 짧게 알려준다.",w:"하트 3개 안에서 60초를 버티면 성공"},
+ {g:1,n:"점프 게임",lv:2,c:"스페이스바",r:"주인공이 자동으로 달린다. '잘못된 행동' 장애물이 나오면 스페이스바로 점프해서 넘고, '올바른 행동' 코인을 모은다. 코인은 10점, 장애물에 부딪히면 하트가 1개 줄어든다.",w:"하트가 남은 채로 결승선에 도착하면 성공"},
+ {g:1,n:"바구니 받기",lv:1,c:"방향키(← →)",r:"위에서 행동 카드가 떨어진다. '올바른 행동' 카드를 바구니로 받으면 10점, '잘못된 행동' 카드를 받으면 10점을 잃고 이유를 보여준다.",w:"150점 이상 모으면 성공"},
+ {g:1,n:"두더지 잡기",lv:1,c:"마우스 클릭",r:"구멍에서 행동 카드를 든 두더지가 튀어나온다. '잘못된 행동' 두더지를 클릭하면 10점, '올바른 행동' 두더지를 클릭하면 10점을 잃는다.",w:"45초 안에 100점 이상 얻으면 성공"},
+ {g:1,n:"미로 탈출",lv:2,c:"방향키(↑ ↓ ← →)",r:"미로의 갈림길마다 문 2개가 있다. 상황에 맞는 올바른 행동이 적힌 문으로 가면 길이 열리고, 잘못된 행동의 문은 막히면서 이유를 알려준다.",w:"갈림길 5개를 지나 출구에 도착하면 성공"},
+ {g:1,n:"풍선 터뜨리기",lv:1,c:"마우스 클릭",r:"행동이 적힌 풍선이 아래에서 떠오른다. '잘못된 행동' 풍선을 클릭해 터뜨리면 10점, '올바른 행동' 풍선을 터뜨리면 하트가 1개 줄어든다.",w:"60초 동안 100점 이상 얻으면 성공"},
+ {g:2,n:"카드 분류",lv:1,c:"마우스로 끌어서 놓기",r:"행동 카드를 '안전해요' 상자와 '위험해요' 상자 중 맞는 곳에 끌어다 놓는다. 맞으면 10점과 칭찬, 틀리면 이유를 보여주고 다시 놓게 한다.",w:"카드 10장을 모두 맞게 분류하면 성공"},
+ {g:2,n:"짝 맞추기",lv:2,c:"마우스 클릭",r:"카드를 2장씩 뒤집는다. '위험한 상황' 카드와 그 상황에 맞는 '올바른 행동' 카드를 짝지으면 카드가 사라지고 10점을 얻는다.",w:"6쌍을 모두 찾으면 성공"},
+ {g:2,n:"순서 맞추기",lv:2,c:"마우스 클릭",r:"올바른 행동을 하는 단계 카드 4장이 섞여 나온다. 첫 번째 단계부터 차례대로 클릭해 바른 순서를 만든다. 순서가 맞으면 20점을 얻는다.",w:"3문제 모두 순서를 맞히면 성공"},
+ {g:2,n:"위험 찾기",lv:2,c:"마우스 클릭",r:"스마트폰 화면, 단톡방, 게시물 같은 장면 속에 숨은 위험한 부분(잘못된 행동)을 찾아 클릭한다. 찾으면 동그라미와 이유가 나오고, 엉뚱한 곳을 누르면 시간이 5초 줄어든다.",w:"장면마다 위험한 부분 3개를 모두 찾으면 성공"},
+ {g:2,n:"초성 퀴즈",lv:2,c:"키보드로 글자 입력",r:"설명과 초성 힌트(예: ㄱㅈㄴㅅ)를 보고 디지털 리터러시 낱말을 입력한다. 맞히면 10점, 힌트를 하나 더 보고 맞히면 5점을 얻는다.",w:"8문제 중 6문제 이상 맞히면 성공"},
+ {g:3,n:"주사위 보드게임",lv:2,c:"마우스 클릭",r:"주사위를 굴려 칸을 이동한다. 칸마다 상황 미션이 나오고, 올바른 행동을 고르면 앞으로 2칸, 잘못된 행동을 고르면 뒤로 1칸 간다.",w:"컴퓨터 친구보다 먼저 20번째 도착 칸에 도착하면 성공"},
+ {g:3,n:"방탈출",lv:3,c:"마우스 클릭",r:"방 3개에 자물쇠가 하나씩 있다. 방 안의 물건을 클릭하면 단서와 문제가 나오고, 문제를 모두 맞히면 비밀번호가 완성되어 다음 방으로 간다.",w:"3번째 방의 문을 열고 탈출하면 성공"},
+ {g:3,n:"타워 지키기",lv:3,c:"마우스 클릭",r:"'잘못된 행동' 몬스터가 길을 따라 성으로 다가온다. 몬스터를 클릭하면 문제가 나오고, 올바른 행동을 고르면 몬스터가 사라진다. 몬스터가 성에 닿으면 성 체력이 1 줄어든다.",w:"성 체력 3 안에서 몬스터 3번의 공격을 막으면 성공"},
+ {g:3,n:"캐릭터 키우기",lv:3,c:"마우스 클릭",r:"주인공의 하루가 진행되며 디지털 상황이 생긴다. 올바른 행동을 고르면 '행복'과 '안전' 수치가 오르고, 잘못된 행동을 고르면 수치가 내려가며 이유를 알려준다.",w:"7일 동안 두 수치를 모두 50 이상으로 지키면 성공"}
+];
+const FUN=[
+ ["문제마다 10초 타이머가 있고, 빨리 맞힐수록 보너스 점수를 더 준다","3문제마다 '찬스 카드'가 나와서 힌트를 1번 볼 수 있다","마지막 문제는 점수가 2배인 '보너스 문제'로 낸다"],
+ ["'50:50 찬스'(오답 2개 지우기)를 한 번 쓸 수 있다","퀴즈쇼 사회자 캐릭터가 정답과 오답에 따라 다른 표정과 말로 반응한다","맞힐수록 상금 사다리처럼 점수가 커지는 단계판을 화면 옆에 보여준다"],
+ ["단계가 올라갈수록 배경과 음악 분위기가 바뀐다","패자부활 문제는 5초 안에 답해야 하는 순발력 OX 문제로 낸다","골든벨을 울리면 종소리 효과와 꽃가루가 화면 가득 터진다"],
+ ["남은 시간이 10초가 되면 '피버 타임'이 시작되어 점수가 2배가 된다","3번 연속으로 맞히면 시간이 3초 늘어난다","시간이 갈수록 문장이 나오는 속도가 조금씩 빨라진다"],
+ ["선택에 따라 결말이 3가지(해피 엔딩, 보통 엔딩, 아쉬운 엔딩)로 달라진다","주인공 표정이 선택할 때마다 바뀐다","모든 장면에서 바른 선택을 하면 숨겨진 비밀 결말이 열린다"],
+ ["가끔 방패 아이템이 나와서 먹으면 5초 동안 무적이 된다","30초가 지나면 큰 '보스 운석'이 나타나 피해야 한다","시간이 갈수록 운석이 떨어지는 속도가 빨라진다"],
+ ["가끔 2단 점프 아이템이 나온다","구간마다 배경이 학교 → 공원 → 도시로 바뀐다","결승선 앞에 큰 보스 장애물이 있다"],
+ ["가끔 떨어지는 황금 카드(올바른 행동)를 받으면 30점을 준다","바구니가 10초 동안 커지는 아이템이 있다","시간이 갈수록 카드가 떨어지는 속도가 빨라진다"],
+ ["가끔 나오는 황금 두더지를 잡으면 30점을 준다","마지막 10초는 두더지가 빨리 나오는 '피버 타임'이다","연속으로 맞히면 망치가 반짝이며 커진다"],
+ ["미로 곳곳의 열쇠를 모아야 마지막 문이 열린다","'잘못된 행동 유령'이 천천히 따라오니 피해야 한다","남은 시간에 따라 별을 1~3개 준다"],
+ ["무지개 풍선을 터뜨리면 화면 속 '잘못된 행동' 풍선이 한꺼번에 터진다","시간이 갈수록 풍선이 빨리 떠오른다","연속으로 맞히면 폭죽 효과가 터진다"],
+ ["카드가 컨베이어 벨트처럼 옆에서 흘러와서 빨리 분류해야 한다","남은 시간만큼 보너스 점수를 준다","3장 연속으로 맞히면 '분류왕' 표시가 반짝인다"],
+ ["시작 전 3초 동안 모든 카드를 미리 보여준다","카드를 뒤집은 횟수가 적을수록 별을 많이 준다","2단계에서는 카드 수가 늘어난다"],
+ ["문제마다 제한 시간이 있고 빨리 맞힐수록 보너스 점수를 준다","순서를 다 맞히면 장면이 만화처럼 움직이며 보여준다","힌트를 쓰면 첫 번째 카드를 알려주지만 점수가 줄어든다"],
+ ["'돋보기 힌트'를 2번 쓸 수 있다","장면이 바뀔수록 숨은 위험이 더 작고 교묘해진다","모두 찾으면 '디지털 탐정' 도장이 쾅 찍힌다"],
+ ["문제마다 입력 제한 시간이 있다","가끔 점수가 2배인 '보너스 낱말'이 나온다","맞힐 때마다 숨겨진 그림 퍼즐이 한 조각씩 열린다"],
+ ["컴퓨터 친구 캐릭터와 번갈아 주사위를 굴리며 경주한다","황금 칸(한 번 더 굴리기)과 함정 칸(한 번 쉬기)이 있다","먼저 도착하면 금메달 시상식 화면이 나온다"],
+ ["화면 위에 남은 시간 타이머가 있다","방 안 물건 뒤에 숨은 보너스 아이템을 찾을 수 있다","탈출에 걸린 시간을 기록해서 보여준다"],
+ ["모은 점수로 성의 방패를 업그레이드할 수 있다","마지막 공격에는 큰 보스 몬스터가 나온다","몬스터마다 모습과 속도가 다르다"],
+ ["캐릭터가 알 → 아기 → 어른으로 자라며 모습이 바뀐다","하루가 끝날 때 캐릭터가 일기 한 줄을 쓴다","가끔 특별한 날(생일, 소풍) 이벤트가 생긴다"]
+];
+const LOSE=["하트 3개를 모두 잃으면 실패","10문제 중 3문제 넘게 틀리면 실패","패자부활 기회까지 쓰고 또 틀리면 실패","60초가 끝났을 때 100점이 안 되면 실패","별 4개를 못 모으면 '아쉬운 엔딩'","하트 3개를 모두 잃으면 실패","하트 3개를 모두 잃으면 실패","잘못된 행동 카드를 3번 받으면 실패","45초가 끝났을 때 100점이 안 되면 실패","제한 시간 2분이 지나면 실패","하트 3개를 모두 잃으면 실패","제한 시간 90초 안에 다 분류하지 못하면 실패","제한 시간 90초가 지나면 실패","한 문제에서 3번 넘게 틀리면 실패","제한 시간이 0초가 되면 실패","8문제 중 3문제 넘게 틀리면 실패","컴퓨터 친구가 먼저 도착하면 실패","제한 시간 5분이 지나면 실패","성 체력이 0이 되면 실패","두 수치 중 하나라도 0이 되면 실패"];
+const EXTRAS=[
+ ["콤보 보너스","연속 정답 보너스","연속으로 맞히면 화면에 '콤보!' 글자가 뜨고 보너스 점수를 준다(3연속 +5점, 5연속 +10점).",1],
+ ["최고 기록","새 기록에 도전","가장 높은 점수를 이 기기에 저장해 시작 화면에 보여주고, 기록을 깨면 '새 기록!'을 크게 축하해 준다.",1],
+ ["레벨 3단계","갈수록 빨라져요","쉬움 → 보통 → 어려움 3단계로 진행하고, 단계가 오를수록 속도나 문제 수가 조금씩 늘어난다. 단계가 바뀔 때 '레벨 업!' 화면을 보여준다.",1],
+ ["별점과 칭호","별 1~3개 + 칭호","결과 화면에서 점수에 따라 별 1~3개와 칭호(디지털 새싹 → 디지털 지킴이 → 디지털 마스터)를 준다.",1],
+ ["친구 대결 순위표","별명으로 순위 경쟁","게임이 끝나면 별명을 입력해 순위표(상위 5명)에 올린다. 순위표는 이 기기에 저장하고, 진짜 이름 대신 별명을 쓰라고 안내한다.",0],
+ ["특별 아이템","시간·하트·점수 2배","게임 중 가끔 특별 아이템(시간 +5초, 하트 회복, 10초 동안 점수 2배)이 나와서 얻을 수 있다.",0],
+ ["보스 스테이지","마지막 큰 도전","마지막 단계에 체력 3칸짜리 보스가 나오고, 문제를 맞힐 때마다 보스 체력이 1칸씩 줄어든다. 이기면 화려한 축하 화면을 보여준다.",0],
+ ["효과음","소리 켜기/끄기","정답, 오답, 레벨 업 때 짧은 효과음을 소리 파일 없이 만들어 넣고, 화면 구석에 소리 켜기/끄기 버튼을 둔다.",0],
+ ["배지 모으기","도전 과제 달성","'첫 콤보', '실수 없이 한 단계 통과', '최고 기록 달성' 같은 도전 과제를 이루면 배지를 주고 결과 화면의 배지판에 모아 보여준다.",0]
+];
+const CHARS=["초록 새싹 요정","안경 쓴 고양이 탐정","방패 든 로봇 보안관","수첩 든 토끼 기자","헬멧 쓴 펭귄 우주비행사","망토 두른 꼬마 공룡"];
+const MOODS=[["밝고 귀여운","밝고 귀여운 초등학생용 그림"],["반짝이는 우주","반짝이는 우주 배경의 밝고 귀여운 초등학생용 그림"],["초록 숲속","나무와 꽃이 있는 숲속 배경의 밝고 귀여운 초등학생용 그림"],["시원한 바다","파란 바다 배경의 밝고 귀여운 초등학생용 그림"],["픽셀 레트로","옛날 오락실 같은 픽셀 그림 스타일의 초등학생용 디자인"]];
+const FIXES=[
+ ["글자가 너무 작아요","글자와 버튼을 더 크게 만들어서 초등학생이 읽기 쉽게 고쳐줘. 다른 기능은 그대로 유지해줘."],
+ ["게임이 너무 어려워요","게임을 조금 더 쉽게 바꿔줘. 속도를 느리게 하고 하트를 5개로 늘려줘. 학습 내용은 그대로 유지해줘."],
+ ["게임이 너무 쉬워요","난이도를 쉬움, 보통, 어려움 3단계로 나누고, 단계가 올라갈수록 조금씩 빨라지게 해줘. 단계가 바뀔 때 '레벨 업!' 화면을 보여줘. 학습 내용은 그대로 유지해줘."],
+ ["게임 방법을 모르겠대요","시작 화면에 '게임 방법' 설명을 3줄로 넣고, 처음 시작할 때 따라 해 보는 연습 문제 1개를 넣어줘. 어린 동생들도 이해할 수 있는 쉬운 말로 써줘. 다른 기능은 그대로 유지해줘."],
+ ["더 신나게 만들고 싶어요","정답이면 반짝이는 효과와 칭찬 문구, 연속 정답이면 '콤보!' 글자와 보너스 점수, 틀리면 화면이 살짝 흔들리는 효과를 넣어줘. 다른 기능은 그대로 유지해줘."],
+ ["보스를 넣고 싶어요","마지막 단계에 보스 캐릭터를 넣어줘. 보스는 체력 3칸이 있고 문제를 맞힐 때마다 1칸씩 줄어. 보스를 이기면 축하 화면을 보여줘. 다른 기능은 그대로 유지해줘."],
+ ["친구와 대결하고 싶어요","게임이 끝나면 별명을 입력해서 순위표(상위 5명)에 올릴 수 있게 해줘. 순위표는 이 기기에 저장하고, 진짜 이름 대신 별명을 쓰라고 안내해줘. 다른 기능은 그대로 유지해줘."],
+ ["문제를 더 넣고 싶어요","같은 주제로 올바른 행동과 잘못된 행동 예시를 각각 5개씩 더 넣고, 문제 순서가 매번 섞이게 해줘. 내용이 정확한지도 확인해줘. 다른 기능은 그대로 유지해줘."]
+];
+const CHECKS=["게임 시작 버튼을 누르면 정상적으로 시작된다.","방향키나 마우스 등 조작 방법이 정상적으로 작동한다.","점수, 성공 조건, 실패 조건이 올바르게 작동한다.","게임 속에 디지털 리터러시 학습 내용이 3개 이상 있다.","게임에서 알려주는 디지털 리터러시 내용이 정확하다.","어린 동생들도 게임 방법을 이해할 수 있다.","게임을 끝내거나 다시 시작할 수 있다.","친구가 직접 플레이하면서 발생한 문제를 확인했다."];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const st={k:null,g:null,kTab:-1,gTab:-1,char:CHARS[0],mood:0,mode:"full",titleDirty:false,extras:EXTRAS.map(e=>!!e[3])};
+
+function tabs(el,groups,list,cur,sel,onPick){
+  const all=[["전체",list.length,-1]].concat(groups.map((n,i)=>[n,list.filter(x=>x.g===i).length,i]));
+  el.innerHTML=all.map(([n,c,i])=>{const has=sel!==null&&(i===-1?false:list[sel].g===i);
+    return `<button type="button" class="tab" role="tab" aria-selected="${i===cur}" data-i="${i}">${esc(n)} <span class="n">${c}</span>${has?'<span class="dot" aria-label="고른 항목 있음"></span>':''}</button>`}).join("");
+  el.querySelectorAll(".tab").forEach(b=>b.onclick=()=>onPick(+b.dataset.i));
+}
+const stars=n=>"★".repeat(n)+"☆".repeat(3-n);
+function renderK(){
+  tabs($("kTabs"),K_GROUPS,KW,st.kTab,st.k,i=>{st.kTab=i;renderK()});
+  $("kChips").innerHTML=KW.map((k,i)=>(st.kTab===-1||k.g===st.kTab)?`<button type="button" class="chip" aria-pressed="${st.k===i}" data-i="${i}"><span class="k">${esc(k.n)}</span><span class="s">${esc(k.s)}</span></button>`:"").join("");
+  $("kChips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{st.k=+b.dataset.i;update()});
+  const k=st.k===null?null:KW[st.k];
+  $("kDetail").innerHTML=k?`<p class="lead"><b>${esc(k.n)}</b> · ${esc(K_GROUPS[k.g])} — ${esc(k.s)}</p>
+   <div class="gb"><div class="g"><h3>○ 이렇게 해요</h3><ul>${k.good.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+   <div class="b"><h3>✕ 이러면 안 돼요</h3><ul>${k.bad.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div></div>`:`<p class="empty">주제를 고르면 게임에 들어갈 학습 내용이 여기에 보여요.</p>`;
+}
+function renderG(){
+  tabs($("gTabs"),G_GROUPS,GAMES,st.gTab,st.g,i=>{st.gTab=i;renderG()});
+  $("gChips").innerHTML=GAMES.map((g,i)=>(st.gTab===-1||g.g===st.gTab)?`<button type="button" class="chip" aria-pressed="${st.g===i}" data-i="${i}"><span class="k">${esc(g.n)}</span><span class="s"><span class="stars" aria-label="난이도 ${g.lv}">${stars(g.lv)}</span> · ${esc(g.c)}</span></button>`:"").join("");
+  $("gChips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{st.g=+b.dataset.i;update()});
+  const g=st.g===null?null:GAMES[st.g];
+  $("gDetail").innerHTML=g?`<p class="lead"><b>${esc(g.n)}</b> · ${esc(G_GROUPS[g.g])} — 만들기 난이도 ${stars(g.lv)}</p>
+   <dl class="kv"><dt>조작</dt><dd>${esc(g.c)}</dd><dt>규칙</dt><dd>${esc(g.r)}</dd><dt>성공</dt><dd>${esc(g.w)}</dd><dt>실패</dt><dd>${esc(LOSE[st.g])}</dd><dt>재미 요소</dt><dd><ul class="fun">${FUN[st.g].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></dd></dl>`:`<p class="empty">게임을 고르면 규칙과 성공 조건이 여기에 보여요.</p>`;
+}
+function renderSettings(){
+  $("chars").innerHTML=CHARS.map(c=>`<button type="button" aria-pressed="${st.char===c}">${esc(c)}</button>`).join("");
+  $("chars").querySelectorAll("button").forEach(b=>b.onclick=()=>{st.char=b.textContent;$("charInput").value=st.char;renderSettings()});
+  $("moods").innerHTML=MOODS.map((m,i)=>`<button type="button" aria-pressed="${st.mood===i}" data-i="${i}">${esc(m[0])}</button>`).join("");
+  $("moods").querySelectorAll("button").forEach(b=>b.onclick=()=>{st.mood=+b.dataset.i;renderSettings()});
+  $("extras").innerHTML=EXTRAS.map((e,j)=>`<button type="button" class="chip" aria-pressed="${st.extras[j]}" data-i="${j}"><span class="k">${esc(e[0])}</span><span class="s">${esc(e[1])}</span></button>`).join("");
+  $("extras").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{const j=+b.dataset.i;st.extras[j]=!st.extras[j];renderSettings()});
+  document.querySelectorAll(".mode").forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===st.mode));
+}
+function autoTitle(){
+  if(st.titleDirty||st.k===null||st.g===null)return;
+  $("title").value=`${KW[st.k].n} ${GAMES[st.g].n}`;
+}
+function update(){
+  renderK();renderG();autoTitle();
+  const k=st.k!==null,g=st.g!==null;
+  $("slotK").classList.toggle("on",k);$("slotG").classList.toggle("on",g);
+  $("slotKv").textContent=k?KW[st.k].n:"아직 안 골랐어요";
+  $("slotGv").textContent=g?GAMES[st.g].n:"아직 안 골랐어요";
+  const ready=k&&g;
+  $("go").setAttribute("aria-disabled",!ready);
+  $("goNote").textContent=ready?"조합 완성! 버튼을 눌러 프롬프트를 만들어요.":(!k&&!g?"STEP 01과 STEP 02에서 하나씩 골라 주세요.":!k?"STEP 01에서 디지털 리터러시 주제를 골라 주세요.":"STEP 02에서 게임 형식을 골라 주세요.");
+}
+function buildPrompt(){
+  const k=KW[st.k],g=GAMES[st.g];
+  const title=$("title").value.trim()||`${k.n} ${g.n}`;
+  const ch=$("charInput").value.trim()||"[주인공 캐릭터]";
+  const mood=MOODS[st.mood][1];
+  const ex=EXTRAS.filter((_,j)=>st.extras[j]);
+  const exBlock=ex.length?`\n\n[경쟁·도전 요소]\n${ex.map(e=>`- ${e[0]}: ${e[2]}`).join("\n")}`:"";
+  const head=`초등학생이 플레이할 디지털 리터러시 웹게임을 만들어줘. 짧게 해도 재미있고, 끝나면 "한 번 더!" 하고 싶어지는 게임이면 좋겠어.`;
+  const screens=`[화면 구성]
+1. 시작 화면: 게임 제목, 주인공, 게임 방법 3줄${st.extras[1]?", 최고 기록":""}, 크고 눈에 띄는 시작 버튼
+2. 게임 화면: 점수, 남은 하트나 시간${st.extras[2]?", 현재 단계":""}를 위쪽에 크게 표시
+3. 결과 화면: 최종 점수, 성공 또는 실패 메시지${st.extras[3]?", 별과 칭호":""}, 오늘 배운 내용 3줄 정리, 다시 하기 버튼`;
+  const must=`[꼭 지켜줘]
+- 한국어로 만들고 시작 버튼, 점수 표시, 종료 화면, 다시 하기 버튼을 넣어줘.
+- 정답과 오답에는 그 이유도 한 문장으로 설명해줘.
+- 정답이면 반짝이는 효과, 오답이면 화면이 살짝 흔들리는 효과를 넣어줘.
+- 그림 파일 없이도 잘 보이도록 주인공과 물건은 이모지나 도형으로 귀엽게 그려줘.
+- 버튼과 글자는 크게 하고, 컴퓨터와 태블릿에서 모두 잘 보이게 해줘.
+- 너무 복잡하지 않고 실제로 플레이할 수 있게 만들어줘.`;
+  const base=`[기본 정보]
+게임 제목: ${title}
+배우는 내용: ${k.n} (${k.s})
+게임 종류: ${g.n}
+주인공: ${ch}`;
+  if(st.mode==="idea"){
+    return `${head}
+
+${base}
+디자인: ${mood}
+
+[나만의 아이디어]
+[여기에 내가 생각한 특별한 규칙이나 재미 요소를 써 보세요]${exBlock}
+
+[AI에게 부탁]
+- 게임 규칙, 성공 조건, 실패 조건, 학습 내용(올바른 행동과 잘못된 행동)은 '배우는 내용'에 맞게 정확하게 만들어줘.
+- 이 게임 종류에 어울리는 재미 요소(아이템, 보스, 깜짝 이벤트 등)를 3가지 더 생각해서 넣어줘.
+- 문제 순서는 매번 섞어서 나오게 해줘.
+
+${screens}
+
+${must}`;
+  }
+  return `${head}
+
+${base}
+조작 방법: ${g.c}
+디자인: ${mood}
+
+[게임 규칙]
+- ${g.r}
+- 성공 조건: ${g.w}
+- 실패 조건: ${LOSE[st.g]}
+
+[이 게임만의 재미 요소]
+${FUN[st.g].map(x=>`- ${x}`).join("\n")}${exBlock}
+
+[학습 내용]
+- 올바른 행동: ${k.good.map((x,i)=>`${i+1}) ${x}`).join(" / ")}
+- 잘못된 행동: ${k.bad.map((x,i)=>`${i+1}) ${x}`).join(" / ")}
+- 문제가 더 필요하면 같은 주제로 정확한 예시를 더 만들고, 문제 순서는 매번 섞어서 나오게 해줘.
+
+${screens}
+
+${must}`;
+}
+let toastT;
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2200)}
+function copyText(text,selEl){
+  const ok=()=>toast("복사했어요! Canva AI에 붙여넣어 보세요.");
+  const fail=()=>{if(selEl&&selEl.select){selEl.focus();selEl.select()}toast("자동 복사가 안 돼요. 선택된 글자를 Ctrl+C로 복사해 주세요.")};
+  const fallback=()=>{try{const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();const r=document.execCommand("copy");ta.remove();r?ok():fail()}catch(e){fail()}};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok,fallback)}else fallback()}catch(e){fallback()}
+}
+
+$("go").onclick=()=>{
+  if($("go").getAttribute("aria-disabled")==="true"){toast($("goNote").textContent);return}
+  $("promptBox").value=buildPrompt();$("out").hidden=false;
+  $("promptBox").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"center"});
+};
+$("regen").onclick=()=>{$("promptBox").value=buildPrompt();toast("처음 상태로 다시 만들었어요.")};
+$("copyPrompt").onclick=()=>copyText($("promptBox").value,$("promptBox"));
+$("title").addEventListener("input",()=>{st.titleDirty=$("title").value.trim()!==""});
+$("charInput").addEventListener("input",()=>{st.char=$("charInput").value.trim();renderSettings()});
+document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{st.mode=b.dataset.mode;renderSettings()});
+$("dice").onclick=()=>{st.k=Math.floor(Math.random()*KW.length);st.g=Math.floor(Math.random()*GAMES.length);st.kTab=-1;st.gTab=-1;st.titleDirty=false;update();toast(`${KW[st.k].n} + ${GAMES[st.g].n} 조합이 나왔어요!`)};
+
+$("brokenBtn").onclick=()=>{const b=$("fixBox");b.hidden=!b.hidden;$("brokenBtn").setAttribute("aria-expanded",!b.hidden)};
+$("copyFix").onclick=()=>copyText($("fixText").textContent);
+$("fixList").innerHTML=FIXES.map((f,i)=>`<div class="fx"><b>${esc(f[0])}</b><p>${esc(f[1])}</p><button type="button" class="btn ghost" data-i="${i}">복사하기</button></div>`).join("");
+$("fixList").querySelectorAll("button").forEach(b=>b.onclick=()=>copyText(FIXES[+b.dataset.i][1]));
+
+const KEY="vibe-hack-check";
+let checked=[];try{checked=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){checked=[]}
+$("items").innerHTML=CHECKS.map((c,i)=>`<li><label><input type="checkbox" id="chk${i}" ${checked[i]?"checked":""}><span>${esc(c)}</span></label></li>`).join("");
+function syncCheck(){
+  const v=CHECKS.map((_,i)=>$("chk"+i).checked),n=v.filter(Boolean).length;
+  $("cnt").textContent=`${n} / ${CHECKS.length}개`;$("barFill").style.width=(n/CHECKS.length*100)+"%";
+  $("bar").setAttribute("aria-valuenow",n);$("doneMsg").hidden=n!==CHECKS.length;
+  try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}
+}
+CHECKS.forEach((_,i)=>$("chk"+i).addEventListener("change",syncCheck));
+$("resetCheck").onclick=()=>{CHECKS.forEach((_,i)=>$("chk"+i).checked=false);syncCheck();toast("점검표를 초기화했어요.")};
+
+$("charInput").value=st.char;
+renderSettings();update();syncCheck();
+</script>
+
+</body>
+</html>
